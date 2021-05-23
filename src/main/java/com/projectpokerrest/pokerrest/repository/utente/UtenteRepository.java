@@ -17,7 +17,7 @@ public interface UtenteRepository extends CrudRepository<Utente, Long>, CustomUt
 	@EntityGraph(attributePaths = { "ruoli" })
 	Utente findByUsernameAndPasswordAndStato(String username, String password, StatoUtente stato);
 	
-	@Query("from Utente u left join fetch u.ruoli a where u.id = ?1")
+	@Query("from Utente u left join fetch u.ruoli r left join fetch u.tavolo t where u.id = ?1")
 	Optional<Utente> findOneEagerRuoli(Long id);
 	
 }

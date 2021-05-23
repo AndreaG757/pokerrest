@@ -223,4 +223,20 @@ public class Utente {
 	public void setTavolo(Tavolo tavolo) {
 		this.tavolo = tavolo;
 	}
+
+	@Override
+	public String toString() {
+		return "Utente{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", nome='" + nome + '\'' +
+				", cognome='" + cognome + '\'' +
+				", dateCreated=" + dateCreated +
+				", stato=" + stato +
+				", esperienzaAccumulata=" + esperienzaAccumulata +
+				", creditoAccumulato=" + creditoAccumulato +
+				", creditoResiduo=" + creditoResiduo;
+	}
+
 }

@@ -32,6 +32,10 @@ public class TavoloServiceImpl implements TavoloService {
 
     @Override
     public Tavolo aggiorna(Tavolo tavoloInstance) {
+        if (!repository.findOneEager(tavoloInstance.getId()).getUtenti().isEmpty()) {
+            throw new RuntimeException("Ci sono ancora dei giocatori al tavolo.");
+        }
+
         return repository.save(tavoloInstance);
     }
 
@@ -42,6 +46,10 @@ public class TavoloServiceImpl implements TavoloService {
 
     @Override
     public void rimuovi(Tavolo tavoloInstance) {
+        if (!repository.findOneEager(tavoloInstance.getId()).getUtenti().isEmpty()) {
+            throw new RuntimeException("Ci sono ancora dei giocatori al tavolo.");
+        }
+
         repository.delete(tavoloInstance);
     }
 

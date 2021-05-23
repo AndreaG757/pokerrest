@@ -27,13 +27,13 @@ public class UtenteServiceImpl implements UtenteService {
 	}
 
 	@Override
-	public void aggiorna(Utente utenteInstance) {
-		repository.save(utenteInstance);
+	public Utente aggiorna(Utente utenteInstance) {
+		return repository.save(utenteInstance);
 	}
 
 	@Override
-	public void inserisciNuovo(Utente utenteInstance) {
-		repository.save(utenteInstance);
+	public Utente inserisciNuovo(Utente utenteInstance) {
+		return repository.save(utenteInstance);
 	}
 
 	@Override
@@ -54,18 +54,6 @@ public class UtenteServiceImpl implements UtenteService {
 	@Override
 	public Utente eseguiAccesso(String username, String password) {
 		return repository.findByUsernameAndPasswordAndStato(username, password, StatoUtente.ATTIVO);
-	}
-
-	@Override
-	public void invertUserAbilitation(Long utenteInstanceId) {
-		Utente utenteInstance = caricaSingoloUtente(utenteInstanceId);
-		if(utenteInstance == null)
-			throw new RuntimeException("Elemento non trovato.");
-		
-		if(utenteInstance.getStato().equals(StatoUtente.ATTIVO))
-			utenteInstance.setStato(StatoUtente.DISABILITATO);
-		else if(utenteInstance.getStato().equals(StatoUtente.DISABILITATO) || utenteInstance.getStato().equals(StatoUtente.CREATO))
-			utenteInstance.setStato(StatoUtente.ATTIVO);
 	}
 
 	@Override
