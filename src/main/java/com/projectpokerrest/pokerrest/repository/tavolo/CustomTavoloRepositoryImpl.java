@@ -25,7 +25,7 @@ public class CustomTavoloRepositoryImpl implements CustomTavoloRepository{
 
         StringBuilder queryBuilder = new StringBuilder("select DISTINCT t from Tavolo t left join fetch t.utenti u where t.id = t.id ");
 
-        if (StringUtils.isNotEmpty(example.getDenominazione())) {
+        if (StringUtils.isNotEmpty(example.getDenominazione()) || example.getDenominazione() != null) {
             whereClauses.add(" t.denominazione like :denominazione ");
             paramaterMap.put("denominazione", "%" + example.getDenominazione() + "%");
         }

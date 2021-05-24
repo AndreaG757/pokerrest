@@ -9,4 +9,7 @@ public interface TavoloRepository extends CrudRepository<Tavolo, Long>, CustomTa
     @Query("from Tavolo t left join fetch t.utenti u where t.id = :id")
     Tavolo findOneEager(Long id);
 
+    @Query("from Tavolo t left join fetch t.utenti u where t.esperienzaMin <= u.esperienzaAccumulata")
+    Tavolo findTavoloByEsperienzaMinima(Long id);
+
 }

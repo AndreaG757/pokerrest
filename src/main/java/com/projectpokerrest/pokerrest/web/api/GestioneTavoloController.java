@@ -30,13 +30,18 @@ public class GestioneTavoloController {
 
     @GetMapping
     public ResponseEntity<List<Tavolo>> listAll(@RequestHeader("Authorization") String username) {
-        verifyUtente(username);
+        Utente utente = verifyUtenteAdminAndSpecialPlayer(username);
+
+        if (verifyUtenteSpecialPlayer(utente) == true) {
+            return ResponseEntity.ok(tavoloService.findByExample(utente.getTavolo()));
+        }
+
         return ResponseEntity.ok(tavoloService.listAllTavolo());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Tavolo> findById(@PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) {
-        verifyUtente(username);
+        verifyUtenteAdminAndSpecialPlayer(username);
 
         Tavolo tavolo = tavoloService.caricaSingoloTavoloConUtenti(id);
 
@@ -49,7 +54,7 @@ public class GestioneTavoloController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Tavolo> createNewTavolo(@Valid @RequestBody Tavolo tavoloInput, @RequestHeader("Authorization") String username) {
-        verifyUtente(username);
+        verifyUtenteAdminAndSpecialPlayer(username);
 
         if (tavoloInput.getUtenteCreazione().getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Normal Player", "ROLE_PLAYER")))
             throw new UtenteNotAuthorizedException("Non sei autorizzato ad accedere a questa funzionalita'.");
@@ -59,7 +64,7 @@ public class GestioneTavoloController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Tavolo> updateTavolo(@Valid @RequestBody Tavolo tavoloInput, @PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) {
-        verifyUtente(username);
+        verifyUtenteAdminAndSpecialPlayer(username);
         Tavolo tavoloTemp = tavoloService.caricaSingoloTavoloConUtenti(id);
 
         if (tavoloTemp == null)
@@ -72,7 +77,7 @@ public class GestioneTavoloController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteTavolo(@PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) {
-        verifyUtente(username);
+        Utente utente = verifyUtenteAdminAndSpecialPlayer(username);
         Tavolo tavolo = tavoloService.caricaSingoloTavoloConUtenti(id);
 
         if (tavolo == null)
@@ -81,12 +86,21 @@ public class GestioneTavoloController {
         tavoloService.rimuovi(tavolo);
     }
 
-    public void verifyUtente(String utenteInput) {
+    public Utente verifyUtenteAdminAndSpecialPlayer(String utenteInput) {
         Utente utente = utenteService.findByUsername(utenteInput);
 
         if (!utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Administrator", "ROLE_ADMIN")) &&
                 !utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Special Player", "ROLE_SPECIAL_PLAYER")))
             throw new UtenteNotAuthorizedException("Non sei autorizzato ad accedere a questa funzionalita'.");
+
+        return utente;
+    }
+
+    public Boolean verifyUtenteSpecialPlayer(Utente utente) {
+        if (utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Special Player", "ROLE_SPECIAL_PLAYER")))
+            return true;
+
+        return false;
     }
 
 }
