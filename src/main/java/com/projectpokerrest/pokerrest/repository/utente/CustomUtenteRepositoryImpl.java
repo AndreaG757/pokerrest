@@ -18,14 +18,14 @@ public class CustomUtenteRepositoryImpl implements CustomUtenteRepository {
 
     @Override
     public List<Utente> findByExample(Utente example) {
-    	Map<String, Object> paramaterMap = new HashMap<String, Object>();
+		Map<String, Object> paramaterMap = new HashMap<String, Object>();
 		List<String> whereClauses = new ArrayList<String>();
 
 		StringBuilder queryBuilder = new StringBuilder(
-				"select DISTINCT u from Utente u left join fetch u.ruoli r where u.id = u.id ");
+				"select u from Utente u left join fetch u.tavolo t left join fetch u.ruoli r where 1 = 1 ");
 
 		if (StringUtils.isNotEmpty(example.getNome())) {
-			whereClauses.add(" u.nome  like :nome ");
+			whereClauses.add(" u.nome like :nome ");
 			paramaterMap.put("nome", "%" + example.getNome() + "%");
 		}
 		if (StringUtils.isNotEmpty(example.getCognome())) {
@@ -36,33 +36,29 @@ public class CustomUtenteRepositoryImpl implements CustomUtenteRepository {
 			whereClauses.add(" u.username like :username ");
 			paramaterMap.put("username", "%" + example.getUsername() + "%");
 		}
-		if (StringUtils.isNotEmpty(example.getPassword())) {
-			whereClauses.add(" u.password like :password ");
-			paramaterMap.put("password", "%" + example.getPassword() + "%");
-		}
 		if (example.getDateCreated() != null) {
-			whereClauses.add("u.dateCreated >= :dateCreated ");
+			whereClauses.add(" u.dateCreated  >= :dateCreated ");
 			paramaterMap.put("dateCreated", example.getDateCreated());
 		}
-		if (example.getCreditoAccumulato() != null) {
-			whereClauses.add("u.creditoAccumulato >= :creditoAccumulato ");
-			paramaterMap.put("creditoAccumulato", example.getCreditoAccumulato());
-		}
-		if (example.getCreditoResiduo() != null) {
-			whereClauses.add("u.creditoResiduo >= :creditoResiduo ");
-			paramaterMap.put("creditoResiduo", example.getCreditoResiduo());
+		if (example.getStato() != null) {
+			whereClauses.add(" u.stato  >= :stato ");
+			paramaterMap.put("stato", example.getStato());
 		}
 		if (example.getEsperienzaAccumulata() != null) {
 			whereClauses.add("u.esperienzaAccumulata >= :esperienzaAccumulata ");
 			paramaterMap.put("esperienzaAccumulata", example.getEsperienzaAccumulata());
 		}
-		if (example.getStato() != null) {
-			whereClauses.add("u.stato = :stato ");
-			paramaterMap.put("stato", example.getStato());
+		if (example.getCreditoResiduo() != null) {
+			whereClauses.add("u.creditoResiduo >= :creditoResiduo ");
+			paramaterMap.put("creditoResiduo", example.getCreditoResiduo());
 		}
 		if (example.getRuoli() != null && !example.getRuoli().isEmpty()) {
-			whereClauses.add("r in :ruoli ");
+			whereClauses.add(" r in :ruoli ");
 			paramaterMap.put("ruoli", example.getRuoli());
+		}
+		if (example.getTavolo() != null) {
+			whereClauses.add(" t =:tavolo ");
+			paramaterMap.put("tavolo", example.getTavolo());
 		}
 
 		queryBuilder.append(!whereClauses.isEmpty() ? " and " : "");

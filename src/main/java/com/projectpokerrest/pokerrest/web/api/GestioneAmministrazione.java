@@ -73,11 +73,16 @@ public class GestioneAmministrazione {
         utenteService.rimuovi(utente);
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<List<Utente>> findByExample(@RequestHeader("Authorization") String username, @RequestBody Utente utente) {
+        verifyUtente(username);
+        return ResponseEntity.ok(utenteService.findByExample(utente));
+    }
+
     public void verifyUtente(String utenteInput) {
         Utente utente = utenteService.findByUsername(utenteInput);
 
-        if (!utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Administrator", "ROLE_ADMIN")) &&
-                !utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Special Player", "ROLE_SPECIAL_PLAYER")))
+        if (!utente.getRuoli().contains(ruoloService.cercaPerDescrizioneECodice("Administrator", "ROLE_ADMIN")))
             throw new UtenteNotAuthorizedException("Non sei autorizzato ad accedere a questa funzionalita'.");
     }
 

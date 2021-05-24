@@ -2,7 +2,6 @@ package com.projectpokerrest.pokerrest.web.api;
 
 import com.projectpokerrest.pokerrest.model.Tavolo;
 import com.projectpokerrest.pokerrest.model.Utente;
-import com.projectpokerrest.pokerrest.service.ruolo.RuoloService;
 import com.projectpokerrest.pokerrest.service.tavolo.TavoloService;
 import com.projectpokerrest.pokerrest.service.utente.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +58,7 @@ public class PlayManagementController {
 
     @PostMapping("/gioca/{id}")
     public ResponseEntity<String> gioca(@PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) throws Exception {
+
         Utente utente = utenteService.findByUsername(username);
         Tavolo tavolo = tavoloService.caricaSingoloTavoloConUtenti(id);
         tavolo.getUtenti().add(utente);
@@ -74,14 +74,11 @@ public class PlayManagementController {
         Integer somma = (int) (Math.random() * 1000);
         Double tot = null;
         String messaggio = null;
-        System.out.println("-------- SEGNO -------\n" + segno + "\n------------- SOMMA ---------\n" + somma);
 
         if (segno >= 0.5) {
             segno = 1D;
-            System.out.println("-------- SEGNO -------\n" + segno + "\n------------- SOMMA ---------\n" + somma);
         } else if (segno <= 0.5) {
             segno = -1D;
-            System.out.println("-------- SEGNO -------\n" + segno + "\n------------- SOMMA ---------\n" + somma);
         }
         tot = segno * somma;
         utente.setCreditoAccumulato(utente.getCreditoAccumulato() + tot);
@@ -100,6 +97,7 @@ public class PlayManagementController {
         }
 
         return ResponseEntity.ok(messaggio);
+
     }
 
 }

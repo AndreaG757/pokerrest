@@ -30,11 +30,7 @@ public class GestioneTavoloController {
 
     @GetMapping
     public ResponseEntity<List<Tavolo>> listAll(@RequestHeader("Authorization") String username) {
-        Utente utente = verifyUtenteAdminAndSpecialPlayer(username);
-
-        if (verifyUtenteSpecialPlayer(utente) == true) {
-            return ResponseEntity.ok(tavoloService.findByExample(utente.getTavolo()));
-        }
+        verifyUtenteAdminAndSpecialPlayer(username);
 
         return ResponseEntity.ok(tavoloService.listAllTavolo());
     }
@@ -64,8 +60,13 @@ public class GestioneTavoloController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Tavolo> updateTavolo(@Valid @RequestBody Tavolo tavoloInput, @PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) {
-        verifyUtenteAdminAndSpecialPlayer(username);
+        Utente utente = verifyUtenteAdminAndSpecialPlayer(username);
         Tavolo tavoloTemp = tavoloService.caricaSingoloTavoloConUtenti(id);
+
+        if (verifyUtenteSpecialPlayer(utente) == true) {
+            utente.setTavolo(tavoloInput);
+            return ResponseEntity.ok(tavoloService.aggiorna(utente.getTavolo()));
+        }
 
         if (tavoloTemp == null)
             throw new TavoloNotFoundException("Tavolo non trovato!");
@@ -83,7 +84,17 @@ public class GestioneTavoloController {
         if (tavolo == null)
             throw new TavoloNotFoundException("Tavolo non trovato!");
 
-        tavoloService.rimuovi(tavolo);
+        if (verifyUtenteSpecialPlayer(utente) == true) {
+            tavoloService.rimuovi(utente.getTavolo());
+        } else {
+            tavoloService.rimuovi(tavolo);
+        }
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<Tavolo>> findByExample(@RequestHeader("Authorization") String username, @RequestBody Tavolo tavolo) {
+        verifyUtenteAdminAndSpecialPlayer(username);
+        return ResponseEntity.ok(tavoloService.findByExample(tavolo));
     }
 
     public Utente verifyUtenteAdminAndSpecialPlayer(String utenteInput) {
