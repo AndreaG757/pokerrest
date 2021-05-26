@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "com.projectpokerrest.pokerrest.repository")
+@EnableJpaRepositories(basePackages = {"com.projectpokerrest.pokerrest.repository", "com.projectpokerrest.pokerrest.security.repository"})
 public class PersistanceJPAConfig {
 
 }

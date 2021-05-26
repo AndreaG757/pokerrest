@@ -1,11 +1,13 @@
 package com.projectpokerrest.pokerrest.web.api;
 
 import com.projectpokerrest.pokerrest.model.Tavolo;
-import com.projectpokerrest.pokerrest.model.Utente;
-import com.projectpokerrest.pokerrest.service.tavolo.TavoloService;
-import com.projectpokerrest.pokerrest.service.utente.UtenteService;
+import com.projectpokerrest.pokerrest.model.User;
+import com.projectpokerrest.pokerrest.service.TavoloService;
+import com.projectpokerrest.pokerrest.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -19,34 +21,42 @@ public class PlayManagementController {
     private TavoloService tavoloService;
 
     @Autowired
-    private UtenteService utenteService;
+    private UserService utenteService;
 
     @PutMapping("/compracredito")
-    public ResponseEntity<Utente> compraCredito(@RequestHeader("Authorization") String username, @RequestBody(required = true) Double credito) {
-        Utente utente = utenteService.findByUsername(username);
+    public ResponseEntity<User> compraCredito(@RequestBody(required = true) Double credito) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
+        User utente = utenteService.trovaByUsername(username);
         utente.setCreditoResiduo(utente.getCreditoResiduo() + credito);
         return ResponseEntity.ok(utenteService.aggiorna(utente));
     }
 
     @GetMapping("/ultimagiocata")
-    public ResponseEntity<Tavolo> getUltimaGiocata(@RequestHeader("Authorization") String username) {
-        Utente utente = utenteService.findByUsername(username);
+    public ResponseEntity<Tavolo> getUltimaGiocata() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
+        User utente = utenteService.trovaByUsername(username);
         return ResponseEntity.ok(utente.getTavolo());
     }
 
     @PutMapping("/abbandonapartita")
-    public ResponseEntity<Utente> abbandonaPartita(@RequestHeader("Authorization") String username) {
-        Utente utente = utenteService.findByUsername(username);
+    public ResponseEntity<User> abbandonaPartita() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
+        User utente = utenteService.trovaByUsername(username);
         utente.setTavolo(null);
         utente.setEsperienzaAccumulata(utente.getEsperienzaAccumulata() + 1);
         return ResponseEntity.ok(utenteService.aggiorna(utente));
     }
 
     @GetMapping("/ricercatavoli")
-    public ResponseEntity<List<Tavolo>> ricercaTavolo(@RequestHeader("Authorization") String username) throws Exception {
-        Utente utente = utenteService.findByUsername(username);
+    public ResponseEntity<List<Tavolo>> ricercaTavolo() throws Exception {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
+        User utente = utenteService.trovaByUsername(username);
         List<Tavolo> tavoliRicerca = new ArrayList<>();
-        List<Tavolo> tavoli = tavoloService.listAllTavolo();
+        List<Tavolo> tavoli = tavoloService.listAllElements();
         for (Tavolo tavoloItem : tavoli) {
             if (tavoloItem.getEsperienzaMin() <= utente.getEsperienzaAccumulata())
                 tavoliRicerca.add(tavoloItem);
@@ -57,11 +67,13 @@ public class PlayManagementController {
     }
 
     @PostMapping("/gioca/{id}")
-    public ResponseEntity<String> gioca(@PathVariable(required = true) Long id, @RequestHeader("Authorization") String username) throws Exception {
+    public ResponseEntity<String> gioca(@PathVariable(required = true) Long id) throws Exception {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
 
-        Utente utente = utenteService.findByUsername(username);
-        Tavolo tavolo = tavoloService.caricaSingoloTavoloConUtenti(id);
-        tavolo.getUtenti().add(utente);
+        User utente = utenteService.trovaByUsername(username);
+        Tavolo tavolo = tavoloService.caricaSingoloElemento(id);
+        tavolo.getUsers().add(utente);
 
         if (tavolo.getEsperienzaMin() > utente.getEsperienzaAccumulata())
             throw new Exception("Esperienza minima richiesta non sufficiente! Chiedi a Lorenzo di farti entrare");
@@ -81,7 +93,7 @@ public class PlayManagementController {
             segno = -1D;
         }
         tot = segno * somma;
-        utente.setCreditoAccumulato(utente.getCreditoAccumulato() + tot);
+        utente.setCreditoResiduo(utente.getCreditoResiduo() + tot);
 
         if (tot <= 0) {
             messaggio = "Hai perso!";

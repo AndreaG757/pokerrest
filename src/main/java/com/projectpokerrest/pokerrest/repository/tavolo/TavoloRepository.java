@@ -10,6 +10,6 @@ public interface TavoloRepository extends CrudRepository<Tavolo, Long>, CustomTa
     Tavolo findOneEager(Long id);
 
     @Query("from Tavolo t left join fetch t.utenti u where t.esperienzaMin <= u.esperienzaAccumulata")
-    Tavolo findTavoloByEsperienzaMinima(Long id);
+    Tavolo findTavoloByEsperienzaMinima(Double id);
 
 }

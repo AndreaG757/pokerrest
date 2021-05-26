@@ -40,13 +40,13 @@ public class CustomTavoloRepositoryImpl implements CustomTavoloRepository {
                 whereClauses.add("t.dataCreazione >= :dataCreazione ");
                 paramaterMap.put("dataCreazione", example.getDataCreazione());
             }
-            if (example.getUtenti() != null && !example.getUtenti().isEmpty()) {
-                whereClauses.add(" u in :utenti ");
-                paramaterMap.put("utenti", example.getUtenti());
+            if (example.getUsers() != null && !example.getUsers().isEmpty()) {
+                whereClauses.add(" u.users in :users ");
+                paramaterMap.put("users", example.getUsers());
             }
-            if (example.getUtenteCreazione() != null) {
-                whereClauses.add(" t.utenteCreazione = :utenteCreazione ");
-                paramaterMap.put("utenteCreazione", example.getUtenteCreazione());
+            if (example.getUserCreazione() != null) {
+                whereClauses.add(" t.userCreazione = :userCreazione ");
+                paramaterMap.put("userCreazione", example.getUserCreazione());
             }
 
             queryBuilder.append(!whereClauses.isEmpty() ? " and " : "");
