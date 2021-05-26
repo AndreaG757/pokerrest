@@ -20,14 +20,20 @@ public class JwtUserDetailsImpl implements UserDetails {
 	private final Collection<? extends GrantedAuthority> authorities;
 	private final boolean enabled;
 
+<<<<<<< HEAD
 	public JwtUserDetailsImpl(String username, String password, String email,
                               Collection<? extends GrantedAuthority> authorities, boolean enabled) {
+=======
+	public JwtUserDetailsImpl(String username, String password, String email, Collection<? extends GrantedAuthority> authorities,
+			boolean enabled) {
+>>>>>>> origin/develop
 		this.username = username;
 		this.password = password;
 		this.email = email;
 		this.authorities = authorities;
 		this.enabled = enabled;
 	}
+<<<<<<< HEAD
 
 	public static JwtUserDetailsImpl build(User user) {
 		List<GrantedAuthority> authorities = user.getAuthorities().stream()
@@ -36,6 +42,22 @@ public class JwtUserDetailsImpl implements UserDetails {
 		return new JwtUserDetailsImpl(user.getUsername(), user.getPassword(), user.getEmail(), authorities,
 				user.getEnabled());
 	}
+=======
+	
+	public static JwtUserDetailsImpl build(User user) {
+		List<GrantedAuthority> authorities = user.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getName().name()))
+                .collect(Collectors.toList());
+		
+        return new JwtUserDetailsImpl(
+                user.getUsername(),
+                user.getPassword(),
+                user.getEmail(),
+                authorities,
+                user.getEnabled()
+        );
+    }
+>>>>>>> origin/develop
 
 	@Override
 	public String getUsername() {
@@ -79,7 +101,11 @@ public class JwtUserDetailsImpl implements UserDetails {
 	public boolean isEnabled() {
 		return enabled;
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> origin/develop
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
